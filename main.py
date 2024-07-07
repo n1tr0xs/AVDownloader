@@ -6,8 +6,9 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 
+DOMAIN = 'https://hd.trn.su/720/'
 
-def download_anime(url):
+def download_anime(driver, url):
     driver.get(url)
     anime_name = driver.\
         find_element(By.CLASS_NAME, 'shortstoryHead')\
@@ -22,7 +23,7 @@ def download_anime(url):
     links = []
     for episode in episodes:
         ajax = episode.get_attribute('onclick')
-        links.append(domain + re.search(r'(\d+),\d+', ajax).group(1) + '.mp4')
+        links.append(DOMAIN + re.search(r'(\d+),\d+', ajax).group(1) + '.mp4')
     name_format = r'{}\{:0{}}.mp4'
     name_len = len(str(len(episodes)))
     for i, link in enumerate(links, start=1):
@@ -54,21 +55,20 @@ def get_list_from_file(file_path):
 
 
 def main():
-    domain = 'https://hd.trn.su/720/'
     downloaded = get_list_from_file('log.txt')
     urls = [
         url.replace('animevost.org', 'v2.vost.pw')
         for url in get_list_from_file('urls.txt')
     ]
 
-    options = webdriver.ChromeOptions()
+    options = webdriver.EdgeOptions()
     options.add_argument('--ignore-certificate-errors-spki-list')
     options.add_argument('--ignore-ssl-errors')
     options.add_argument('log-level=3')
-    with webdriver.Chrome(options=options) as driver:
+    with webdriver.Edge(options=options) as driver:
         for i, url in enumerate(urls, start=1):
             print(f'{i}/{len(urls)} anime: ', end='')
-            download_anime(url)
+            download_anime(driver, url)
     print('All completed.')
 
 
